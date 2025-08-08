@@ -1,33 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {useEffect, useState} from 'react'
+import MessageDisplay from "./components/MessageDisplay.jsx";
+import MessageForm from "./components/MessageForm.jsx";
+import messageService from "./services/messageService.js"
+
+const exampleMessages = [
+    {
+        sender: "Hessu",
+        messageContent: "Sup mates"
+    },
+    {
+        sender: "Mikki",
+        messageContent: "Kys"
+    }
+]
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const [messages, setMessages] = useState(exampleMessages)
+
+    useEffect(() => {
+      messageService
+        .getAll()
+        .then(backendMessages => {
+          setMessages([...exampleMessages, ...backendMessages])
+        })
+        .catch(error => {
+          console.error('Error loading messages:', error)
+        })
+    }, [])
+
+
+  const addMessage = async (newMessage) => {
+    try {
+      const savedMessage = await messageService.create(newMessage)
+      setMessages([...messages, savedMessage])
+    } catch (error) {
+      console.error('Error saving message:', error)
+    }
+  }
 
   return (
     <>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+          <h2>Messages</h2>
+          <MessageDisplay messages={messages} />
+          <h2>Send a message</h2>
+          <MessageForm addMessage={addMessage} />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
