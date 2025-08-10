@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import {Box, Button, TextField } from "@mui/material"
+
 const MessageForm = ({ addMessage }) => {
     const [sender, setSender] = useState('')
     const [messageContent, setMessageContent] = useState('')
@@ -14,29 +16,30 @@ const MessageForm = ({ addMessage }) => {
     }
 
     return (
-        <div>
-            <form onSubmit={handleSubmit}>
-                <div>
+            <Box component="form" onSubmit={handleSubmit}>
+
+                <Box mb={2}>
                     Sender:
-                    <input
+                    <input //TODO: REMOVE THIS AFTER IMPLEMETING THE LOGIN
                         type="text"
                         placeholder="sender"
                         value={sender}
                         onChange={(event) => setSender(event.target.value)}
                     />
-                </div>
-                <div>
-                    Message:
-                    <input
-                        type="text"
-                        placeholder="message"
-                        value={messageContent}
-                        onChange={(event) => setMessageContent(event.target.value)}
-                    />
-                    <button type="submit">Send</button>
-                </div>
-            </form>
-        </div>
+                </Box>
+
+                <TextField
+                    label="Write a message"
+                    variant="outlined"
+                    value={messageContent}
+                    onChange={(event) => setMessageContent(event.target.value)}
+                    fullWidth
+                />
+
+                    <Button type="submit" variant="contained">
+                        Send
+                    </Button>
+            </Box>
     )
 }
 

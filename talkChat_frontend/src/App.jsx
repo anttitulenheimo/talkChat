@@ -1,7 +1,9 @@
 import {useEffect, useState} from 'react'
-import MessageDisplay from "./components/MessageDisplay.jsx";
-import MessageForm from "./components/MessageForm.jsx";
+import ChatDisplay from "./components/ChatDisplay.jsx"
+import ChatList from "./components/ChatList.jsx"
 import { io } from 'socket.io-client'
+
+import { Typography } from '@mui/material'
 
 
 
@@ -21,7 +23,7 @@ function App() {
   const [messages, setMessages] = useState(exampleMessages)
   const [socket, setSocket] = useState(null)
 
-
+    //TODO: Contain the websocket handling to /services/chatSocketService.js
     useEffect(() => {
         const newSocket = io('http://localhost:8080')
         setSocket(newSocket)
@@ -62,12 +64,14 @@ function App() {
 
 
   return (
+      //TODO: Create different chat boxes that are rendered conditionally this means every chat needs an id
     <>
       <div>
-          <h2>Messages</h2>
-          <MessageDisplay messages={messages} />
-          <h2>Send a message</h2>
-          <MessageForm addMessage={addMessage} />
+          <Typography variant="h4" gutterBottom>
+              Conversations
+          </Typography>
+          <ChatList></ChatList>
+          <ChatDisplay messages={messages} addMessage={addMessage} />
       </div>
     </>
   )
