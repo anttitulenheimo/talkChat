@@ -1,7 +1,9 @@
 import {useEffect, useState} from 'react'
 import MessageDisplay from "./components/MessageDisplay.jsx";
 import MessageForm from "./components/MessageForm.jsx";
-import messageService from "./services/messageService.js"
+import { io } from 'socket.io-client'
+
+
 
 const exampleMessages = [
     {
@@ -10,34 +12,54 @@ const exampleMessages = [
     },
     {
         sender: "Mikki",
-        messageContent: "Kys"
+        messageContent: "Test"
     }
 ]
 
 function App() {
 
   const [messages, setMessages] = useState(exampleMessages)
+  const [socket, setSocket] = useState(null)
+
 
     useEffect(() => {
-      messageService
-        .getAll()
-        .then(backendMessages => {
-          setMessages([...exampleMessages, ...backendMessages])
+        const newSocket = io('http://localhost:8080')
+        setSocket(newSocket)
+
+        // Socket connection handlers
+        newSocket.on('connect', () => {
+            console.log('Connected to server with ID:', newSocket.id)
+            console.log('Socket connected:', newSocket.connected)
         })
-        .catch(error => {
-          console.error('Error loading messages:', error)
+
+        newSocket.on('disconnect', () => {
+            console.log('Disconnected from server')
         })
+
+        newSocket.on('connect_error', (error) => {
+            console.error('Connection error:', error)
+        })
+
+        newSocket.on('chat message', newMessage => {
+            console.log('Received message:', newMessage)
+            setMessages(prevMessages => [...prevMessages, newMessage])
+        })
+
+        return () => {
+            newSocket.close()
+        }
     }, [])
 
 
-  const addMessage = async (newMessage) => {
-    try {
-      const savedMessage = await messageService.create(newMessage)
-      setMessages([...messages, savedMessage])
-    } catch (error) {
-      console.error('Error saving message:', error)
+    const addMessage = (newMessage) => {
+        if (socket && socket.connected) {
+            console.log('Sending Message:', newMessage)
+            socket.emit('chat message', newMessage)
+        } else {
+            console.error('Socket not connected')
+        }
     }
-  }
+
 
   return (
     <>

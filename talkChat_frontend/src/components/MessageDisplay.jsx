@@ -1,8 +1,11 @@
 const MessageDisplay = ({ messages }) => {
+
     return(
         <div>
-            {messages.map(message =>
-                <p key={message.sender}>Sender: {message.sender} Message: {message.messageContent}</p>
+            {messages.map( (message, index) =>
+                <p key={index}>
+                    Sender: {message.sender} Message: {message.messageContent}
+                </p>
             )}
         </div>
     )
