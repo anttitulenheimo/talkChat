@@ -2,9 +2,15 @@ const express = require('express')
 const http = require('http')
 const { Server } = require('socket.io')
 const cors = require('cors')
+const usersRouter = require('./controllers/users')
+const mongoose  = require('mongoose')
+const config = require('./utils/config')
+
 
 const app = express()
+app.use(express.json())
 app.use(cors())
+app.use('/api/users', usersRouter)
 
 const httpServer = http.createServer(app)
 
@@ -21,6 +27,15 @@ ioServer.on('connection', (socket) => {
         ioServer.emit('chat message', data)
     })
 })
+
+mongoose
+    .connect(config.MONGODB_URI)
+    .then(() => {
+        console.log('connected to MongoDB')
+    })
+    .catch ((error) => {
+        console.log(`Error connecting to MongoDB\nmessage: ${error.message}`)
+    })
 
 const PORT = 8080
 httpServer.listen(PORT, () => {
