@@ -3,6 +3,7 @@ const http = require('http')
 const { Server } = require('socket.io')
 const cors = require('cors')
 const usersRouter = require('./controllers/users')
+const loginRouter = require('./controllers/login')
 const mongoose  = require('mongoose')
 const config = require('./utils/config')
 
@@ -11,6 +12,7 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 app.use('/api/users', usersRouter)
+app.use('/api/login', loginRouter)
 
 const httpServer = http.createServer(app)
 
