@@ -4,9 +4,16 @@ import ChatList from "./components/ChatList.jsx"
 import loginService from "./services/loginService.js"
 import { io } from 'socket.io-client'
 
-import { Typography } from '@mui/material'
+import {Typography, Box, Collapse, Button, TextField, ThemeProvider, createTheme} from '@mui/material'
+import CssBaseline from '@mui/material/CssBaseline'
+import { useColorScheme } from '@mui/material/styles'
 
-
+const darkTheme = createTheme({
+  colorSchemes: {
+    light: 'true',
+    dark: 'true',
+  },
+})
 
 const exampleMessages = [
     {
@@ -19,10 +26,27 @@ const exampleMessages = [
     }
 ]
 
+// Changes the themes between dark and light
+function ThemeToggleButton() {
+  const { mode, setMode } = useColorScheme()
+
+  const handleToggle = () => {
+    setMode(mode === 'dark' ? 'light' : 'dark')
+  }
+
+  return (
+    <Button variant="outlined" onClick={handleToggle}>
+      {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+    </Button>
+  )
+}
+
 function App() {
 
   const [messages, setMessages] = useState(exampleMessages)
   const [socket, setSocket] = useState(null)
+
+  const [step, setStep] = useState(1)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -58,7 +82,7 @@ function App() {
     }, [])
 
 
-
+    // Searches for the possible token
     useEffect(() => {
         const loggedUserJSON = window.localStorage.getItem('loggedUser')
         if (loggedUserJSON) {
@@ -68,7 +92,7 @@ function App() {
     }, [])
 
 
-
+    // Sends a message
     const addMessage = (newMessage) => {
         if (socket && socket.connected) {
             console.log('Sending Message:', newMessage)
@@ -76,23 +100,6 @@ function App() {
         } else {
             console.error('Socket not connected')
         }
-    }
-
-
-    const handleLogin = async (event) => {
-      event.preventDefault()
-      console.log('loggin in with', username, password)
-      try {
-          const user = await loginService.login({
-              username, password
-          })
-          setUser(user)
-          window.localStorage.setItem('loggedUser', JSON.stringify(user))
-          setUsername('')
-          setPassword('')
-      } catch (error) {
-          console.log('Error when logging in', error)
-      }
     }
 
 
@@ -104,32 +111,81 @@ function App() {
     }
 
 
-
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-        username
-          <input
-          type="text"
-          value={username}
-          name="Username"
-          onChange={({ target }) => setUsername(target.value)}
-        />
-      </div>
-      <div>
-        password
-          <input
-          type="password"
-          value={password}
-          name="Password"
-          onChange={({ target }) => setPassword(target.value)}
-        />
-      </div>
-      <button type="submit">login</button>
-    </form>
-  )
+    const handleUsernameSubmit = (event) => {
+        event.preventDefault()
+        if (username.trim()) {
+            setStep(2)
+        }
+    }
 
 
+    const handlePasswordSubmit = async (event) => {
+        event.preventDefault()
+        console.log('loggin in with', username, password)
+        try {
+            const userData = await loginService.login({ username, password })
+            setUser(userData)
+            window.localStorage.setItem('loggedUser', JSON.stringify(userData))
+            setUsername('')
+            setPassword('')
+        } catch (error) {
+            console.log('Error when logging in', error)
+        }
+    }
+
+    // Shows the login part of the app
+    const loginForm = () => (
+            <Box
+                component="form"
+                onSubmit={step === 1 ? handleUsernameSubmit : handlePasswordSubmit}
+                sx={{ width: 300, margin: 'auto', mt: 5 }}
+            >
+                <Collapse in={step === 1}>
+                    {step === 1 && (
+                        <Box mb={2}>
+                            <TextField
+                                fullWidth
+                                label="Username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+
+                            <Button variant="contained" type="submit" fullWidth sx={{ mt: 2 }}>
+                                Continue
+                            </Button>
+                            <Button variant="outlined" fullWidth onClick={() => console.log('pressed sign up')}>
+                            Sign up
+                            </Button>
+
+                        </Box>
+                    )}
+                </Collapse>
+
+                <Collapse in={step === 2}>
+                    {step === 2 && (
+                        <Box mb={2}>
+                            <TextField
+                                fullWidth
+                                label="Password"
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+
+                            <Button variant="contained" type="submit" fullWidth sx={{ mt: 2 }}>
+                                Log in
+                            </Button>
+                            <Button variant="outlined" fullWidth onClick={() => setStep(1)}>
+                            Back
+                            </Button>
+
+                        </Box>
+                    )}
+                </Collapse>
+            </Box>
+        )
+
+  // Shows the chat part of the app
   const chatForm = () => (
       <div>
          <Typography variant="h4" gutterBottom>
@@ -143,10 +199,13 @@ function App() {
 
 
   return (
-      <div>
+      <ThemeProvider theme={darkTheme}>
+          <CssBaseline />
           {!user && loginForm()}
           {user && chatForm()}
-      </div>
+
+          <ThemeToggleButton />
+      </ThemeProvider>
   )
 }
 
