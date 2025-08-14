@@ -7,7 +7,7 @@ const messageSchema = new mongoose.Schema(
       ref: 'Chat', // links to a chat
       required: true
     },
-    sender: {
+    senderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User', // links to sender
       required: true
