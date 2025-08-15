@@ -1,9 +1,13 @@
 import {useEffect, useState} from 'react'
+import { io } from 'socket.io-client'
+// Components
 import ChatDisplay from "./components/ChatDisplay.jsx"
 import ChatList from "./components/ChatList.jsx"
+import FindUser from './components/FindUser.jsx'
+// Services
 import loginService from "./services/loginService.js"
-import { io } from 'socket.io-client'
-
+import userService from './services/userService.js'
+// Styling
 import {Typography, Box, Collapse, Button, TextField, ThemeProvider, createTheme} from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import { useColorScheme } from '@mui/material/styles'
@@ -52,6 +56,8 @@ function App() {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
+  const [findUsername, setFindUsername] = useState('')  // For the username search
+  const [foundUser, setFoundUser] = useState('') // Saving the username when its found via search
 
     //TODO: Contain the websocket handling to /services/chatSocketService.js
     useEffect(() => {
@@ -138,6 +144,18 @@ function App() {
         }
     }
 
+    const handleFindUser = async (event) => {
+        event.preventDefault()
+        try {
+            const findingUser = await userService.search(findUsername)
+            //console.log(`Found username: ${JSON.stringify(findingUser)}`)
+            setFoundUser(findingUser.username)
+            //console.log(findUsername)
+        } catch (error) {
+            console.log('Find user not working :(')
+        }
+    }
+
     // Shows the login part of the app
     const loginForm = () => (
             <Box
@@ -196,6 +214,13 @@ function App() {
          <Typography variant="h4" gutterBottom>
                   Conversations
          </Typography>
+         <FindUser 
+            findUsername={findUsername}
+            setFindUsername={setFindUsername}
+            handleFindUser={handleFindUser}
+            foundUser={foundUser}
+            setFoundUser={setFoundUser}
+          />
          <ChatList></ChatList>
          <ChatDisplay messages={messages} addMessage={addMessage}  username={username} />
          <button onClick={handleLogout}>log out</button>

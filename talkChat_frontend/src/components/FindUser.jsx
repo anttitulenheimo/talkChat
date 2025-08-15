@@ -1,5 +1,39 @@
-const FindUser = ({ username }) => {
-    return (
-        <div> You can search an user here</div>
+
+
+const FindUser = ({ 
+        findUsername,
+        setFindUsername,
+        handleFindUser,
+        foundUser,
+        setFoundUser }) => {
+
+    const userExistsRender = ( // When user exist, render this
+        <div>
+            <h3>Username <em>{findUsername}</em> found <button>Message</button></h3>
+        </div>
     )
+    return (
+        <div>
+            <form onSubmit={handleFindUser}>
+                <div>
+                    Search for user: <input 
+                        type='text'
+                        value={findUsername}
+                        onChange={({ target }) => {setFindUsername(target.value); setFoundUser('')}}
+                        />
+                        <button type='submit'>Search</button>
+
+                </div>
+            </form>
+            {foundUser ? userExistsRender : <div></div>}
+        </div>
+    )
+
 }
+
+
+
+
+
+
+export default FindUser
