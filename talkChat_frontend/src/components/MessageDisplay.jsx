@@ -4,29 +4,22 @@ const MessageDisplay = ({ messages }) => {
 
 
     return(
-        <Box
-          border={1}
-          borderColor="grey.400"
-          borderRadius={2}
-          p={2}
-          maxHeight="400px"
-          overflow="auto"
-        >
+
             <List>
                 <Typography variant="h5" gutterBottom>
                 Current chat
                 </Typography>
                 {messages.map( (message, index) =>
-                    <ListItem key={index} alignItems="flex-start">
+                    <ListItem key={`${message.username}-${index}`} alignItems="flex-start">
 
                         <ListItemAvatar>
-                            <Avatar>{message.sender.substring(0, 2).toUpperCase()}</Avatar>
+                            <Avatar>{message.username.substring(0, 2).toUpperCase()}</Avatar>
                         </ListItemAvatar>
 
                           <Box display="flex" flexDirection="column" maxWidth="70%">
 
                             <Typography variant="subtitle2" color="textSecondary">
-                              {message.sender}
+                              {message.username}
                             </Typography>
 
                             <Paper elevation={2} style={{ padding: '8px 16px', borderRadius: '12px', border: '1px solid #ccc' }}>
@@ -38,7 +31,7 @@ const MessageDisplay = ({ messages }) => {
                     </ListItem>
                 )}
             </List>
-        </Box>
+
 
     )
 }

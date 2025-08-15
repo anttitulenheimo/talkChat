@@ -15,13 +15,14 @@ const darkTheme = createTheme({
   },
 })
 
+// This is wrong because messages have a different schema
 const exampleMessages = [
     {
-        sender: "Hessu",
+        username: "Hessu",
         messageContent: "Sup mates"
     },
     {
-        sender: "Mikki",
+        username: "Mikki",
         messageContent: "Test"
     }
 ]
@@ -85,9 +86,12 @@ function App() {
     // Searches for the possible token
     useEffect(() => {
         const loggedUserJSON = window.localStorage.getItem('loggedUser')
+        const loggedUsernameJson = window.localStorage.getItem('loggedUsername')
         if (loggedUserJSON) {
             const user = JSON.parse(loggedUserJSON)
+            const username = JSON.parse(loggedUsernameJson)
             setUser(user)
+            setUsername(username)
         }
     }, [])
 
@@ -107,6 +111,7 @@ function App() {
         event.preventDefault()
         console.log('logging out', user)
         window.localStorage.removeItem('loggedUser')
+        window.localStorage.removeItem('loggedUsername')
         location.reload()
     }
 
@@ -126,7 +131,7 @@ function App() {
             const userData = await loginService.login({ username, password })
             setUser(userData)
             window.localStorage.setItem('loggedUser', JSON.stringify(userData))
-            setUsername('')
+            window.localStorage.setItem('loggedUsername', JSON.stringify(username))
             setPassword('')
         } catch (error) {
             console.log('Error when logging in', error)
@@ -192,7 +197,7 @@ function App() {
                   Conversations
          </Typography>
          <ChatList></ChatList>
-         <ChatDisplay messages={messages} addMessage={addMessage} />
+         <ChatDisplay messages={messages} addMessage={addMessage}  username={username} />
          <button onClick={handleLogout}>log out</button>
      </div>
     )
