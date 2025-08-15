@@ -13,4 +13,9 @@ const searchByUserId = async (usersId) => {
     return response.data
 }
 
-export default { search,  searchByUserId }
+const register = async (newObject) => {
+    const response = await axios.post(baseUrl, newObject)
+    return response.data
+}
+
+export default { search,  searchByUserId, register }

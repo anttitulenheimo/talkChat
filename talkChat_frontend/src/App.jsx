@@ -45,9 +45,14 @@ function App() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  const [register, setRegister] = useState(false)
 
   const [findUsername, setFindUsername] = useState('')  // For the username search
   const [foundUser, setFoundUser] = useState('') // Saving the username when it's found via search
+
+  const [newUser, setNewUser] = useState('') // For SignUp form to save new user details
+  const [newName, setNewName] = useState('') //
+  const [newUserPassword, setNewUserPassword] = useState('') //
 
 useEffect(() => {
     const realChatIdFromMongo = '689b3cb7db9872638c68768b'
@@ -178,6 +183,48 @@ useEffect(() => {
         }
     }
 
+    const handleRegister = async (event) => {
+        event.preventDefault()
+        try {
+            const userObject = {
+                username: newUser,
+                name: newName,
+                password, newUserPassword
+            }
+            await userService.register(userObject)
+            console.log(`Added a new user to database\n${JSON.stringify(userObject)}`)
+            setNewUser('')
+            setNewName('')
+            setNewUserPassword('')
+            setRegister(false)
+        } catch (err) {
+
+            console.error("Caught error:", err)
+        }
+    }
+
+    const SignUpForm = () => {
+        return (
+            <Box sx={{ width: 300, margin: 'auto', mt: 5 }}>
+                <Box component='form' onSubmit={handleRegister}>
+                        <Typography variant="h3" component="h3" color='primary' align='center'>
+                            Sign up
+                        </Typography>
+                    <Box>
+                        <TextField sx={{ width: '100%' }} type='text' placeholder='Enter your username' value={newUser} onChange={({ target }) => setNewUser(target.value)} />
+                    </Box>
+                    <Box>
+                        <TextField sx={{ width: '100%' }} type='text' placeholder='Enter your name' value={newName} onChange={({ target }) => setNewName(target.value)} />
+                    </Box>
+                    <Box>
+                        <TextField sx={{ width: '100%' }} type='password' placeholder='Enter your password' value={newUserPassword} onChange={({ target }) => setNewUserPassword(target.value)} />
+                    </Box>
+                    <Button sx={{ width: '50%' }} variant="outlined" onClick={() => setRegister(false)}>Back</Button>
+                    <Button sx={{ width: '50%' }} variant="outlined"  type='submit'>Register</Button>
+                </Box>
+            </Box>
+        )
+    }
     // Shows the login part of the app
     const loginForm = () => (
             <Box
@@ -198,9 +245,9 @@ useEffect(() => {
                             <Button variant="contained" type="submit" fullWidth sx={{ mt: 2 }}>
                                 Continue
                             </Button>
-                            <Button variant="outlined" fullWidth onClick={() => console.log('pressed sign up')}>
+                            <Button variant="outlined" fullWidth onClick={() => setRegister(true)}>
                             Sign up
-                            </Button>
+                            </Button >
 
                         </Box>
                     )}
@@ -253,9 +300,13 @@ useEffect(() => {
   return (
       <ThemeProvider theme={darkTheme}>
           <CssBaseline />
-          {!user && loginForm()}
+          {!user && (
+            <>
+            {loginForm()}
+            {register ? (SignUpForm()) : (<Box></Box>)}
+            </>)}
           {user && chatForm()}
-
+          
           <ThemeToggleButton />
       </ThemeProvider>
   )
