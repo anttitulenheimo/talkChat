@@ -189,7 +189,7 @@ useEffect(() => {
             const userObject = {
                 username: newUser,
                 name: newName,
-                password, newUserPassword
+                password: newUserPassword
             }
             await userService.register(userObject)
             console.log(`Added a new user to database\n${JSON.stringify(userObject)}`)
