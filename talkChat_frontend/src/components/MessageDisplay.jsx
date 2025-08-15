@@ -2,6 +2,13 @@ import { List, ListItem, ListItemAvatar, Avatar, Paper, Typography, Box } from '
 
 const MessageDisplay = ({ messages }) => {
 
+    if (!messages) {
+        return (
+            <div>No messages to display</div>
+        )
+    }
+
+
 
     return(
 

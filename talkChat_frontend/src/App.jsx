@@ -7,6 +7,7 @@ import FindUser from './components/FindUser.jsx'
 // Services
 import loginService from "./services/loginService.js"
 import userService from './services/userService.js'
+import messageService from "./services/messageService.js"
 // Styling
 import {Typography, Box, Collapse, Button, TextField, ThemeProvider, createTheme} from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -19,17 +20,6 @@ const darkTheme = createTheme({
   },
 })
 
-// This is wrong because messages have a different schema
-const exampleMessages = [
-    {
-        username: "Hessu",
-        messageContent: "Sup mates"
-    },
-    {
-        username: "Mikki",
-        messageContent: "Test"
-    }
-]
 
 // Changes the themes between dark and light
 function ThemeToggleButton() {
@@ -48,7 +38,7 @@ function ThemeToggleButton() {
 
 function App() {
 
-  const [messages, setMessages] = useState(exampleMessages)
+  const [messages, setMessages] = useState(null)
   const [socket, setSocket] = useState(null)
 
   const [step, setStep] = useState(1)
@@ -57,7 +47,38 @@ function App() {
   const [user, setUser] = useState(null)
 
   const [findUsername, setFindUsername] = useState('')  // For the username search
-  const [foundUser, setFoundUser] = useState('') // Saving the username when its found via search
+  const [foundUser, setFoundUser] = useState('') // Saving the username when it's found via search
+
+useEffect(() => {
+    const realChatIdFromMongo = '689b3cb7db9872638c68768b'
+
+    messageService.getMessages(realChatIdFromMongo)
+        .then(async rawDatabaseMessages => {
+            const parsedMessages = await Promise.all(
+                rawDatabaseMessages.map(async message => {
+                    try {
+                        const userId = message.senderId.id
+                        const userInfo = await userService.searchByUserId(userId)
+                        return {
+                            username: userInfo.username,
+                            messageContent: message.text
+                        }
+                    } catch (error) {
+                        console.log('Error fetching user:', error)
+                        return {
+                            username: 'Unknown User',
+                            messageContent: message.text
+                        }
+                    }
+                })
+            )
+            setMessages(parsedMessages)
+        })
+        .catch(error => {
+            console.log('Error when fetching messages', error)
+        })
+}, [])
+
 
     //TODO: Contain the websocket handling to /services/chatSocketService.js
     useEffect(() => {
@@ -77,7 +98,7 @@ function App() {
         newSocket.on('connect_error', (error) => {
             console.error('Connection error:', error)
         })
-
+        // Might need a modification!!!!!!!
         newSocket.on('chat message', newMessage => {
             console.log('Received message:', newMessage)
             setMessages(prevMessages => [...prevMessages, newMessage])
@@ -100,6 +121,7 @@ function App() {
             setUsername(username)
         }
     }, [])
+
 
 
     // Sends a message
