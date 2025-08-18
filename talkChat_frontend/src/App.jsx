@@ -8,10 +8,12 @@ import FindUser from './components/FindUser.jsx'
 import loginService from "./services/loginService.js"
 import userService from './services/userService.js'
 import messageService from "./services/messageService.js"
+
 // Styling
 import {Typography, Box, Collapse, Button, TextField, ThemeProvider, createTheme} from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import { useColorScheme } from '@mui/material/styles'
+import chatService from './services/chatService.js'
 
 const darkTheme = createTheme({
   colorSchemes: {
@@ -56,6 +58,7 @@ function App() {
 
   const [id, setId] = useState('') // For the chatlist component
 
+  const [receiverUserId, setReceiverUserId] = useState(null) // This is for creating new chat connection with a user
 
     //TODO: Contain the websocket handling to /services/chatSocketService.js
     useEffect(() => {
@@ -155,7 +158,9 @@ function App() {
             const findingUser = await userService.search(findUsername)
             //console.log(`Found username: ${JSON.stringify(findingUser)}`)
             setFoundUser(findingUser.username)
-            //console.log(findUsername)
+            setReceiverUserId(findingUser.id) // save searched users Id for creating a chat.
+            //console.log(receiverUserId)
+
         } catch (error) {
             console.log('Find user not working :(')
         }
@@ -178,6 +183,22 @@ function App() {
         } catch (err) {
 
             console.error("Caught error:", err)
+        }
+    }
+
+
+    const handleNewChat = async () => {
+        const getLoggedUserId = JSON.parse(window.localStorage.getItem('loggedUserId'))
+        try {
+             
+            const chatObject = {
+                senderId: getLoggedUserId,
+                receiverId: receiverUserId
+            }
+            await chatService.newChat(chatObject)
+        } catch (error) {
+            console.log(error)
+
         }
     }
 
@@ -267,6 +288,7 @@ function App() {
             handleFindUser={handleFindUser}
             foundUser={foundUser}
             setFoundUser={setFoundUser}
+            handleNewChat={handleNewChat}
           />
          <ChatList userId={id} addMessage={addMessage} username={username} socket={socket}></ChatList>
          <Button variant="outlined" onClick={handleLogout}>log out</Button>

@@ -2,14 +2,19 @@ const mongoose = require('mongoose')
 
 const chatSchema = new mongoose.Schema(
   {
-    participants: [
-      {
+    participants: {
+      type: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', // reference to User model
         required: true
-      }
-    ],
-      minlenght: 2
+      }],
+      validate: [
+        {
+          validator: function(v) { return v.length >= 2 },
+          message: 'Chat must have at least 2 participants'
+        }
+      ]
+    }
   },
   { timestamps: true }
 )
