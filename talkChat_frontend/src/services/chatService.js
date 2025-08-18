@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseUrl = '/api/getAllChats/'
+const baseUrl = '/api/getAllChats'
 
 const getChats = async (userId) => {
   const url = `${baseUrl}/${userId}`
