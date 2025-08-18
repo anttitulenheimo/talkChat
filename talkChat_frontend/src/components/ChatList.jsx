@@ -10,6 +10,7 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
     const [currentMessages, setCurrentMessages] = useState(null)
     const [chatId, setCurrentChatId] = useState(null)
 
+    // Handle chat messages
     useEffect(() => {
         if (socket && chatId) {
             const handleMessage = (newMessage) => {
@@ -28,19 +29,24 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
 
 
 
-    // For the chats
+    // Load chats
     useEffect(() => {
-        //const realUserIdFromMongo = '689a3649b0d044b9d62ddb8e';
-
+        if (!userId) return
         chatService.getChats(userId)
             .then(async rawDatabaseChats => {
                 const parsedChats = await Promise.all(
                     rawDatabaseChats.map(async chat => {
                         try {
 
-                            const anotherUser = chat.participants.find(participant =>
-                                participant._id !== userId
+                            const anotherUser = chat.participants.find(participant => {
+                                return participant._id !== userId // _.id works for the mongodb
+                                }
                             )
+
+                            if (!anotherUser) {
+                                console.error('Could not find another user in chat:', chat)
+                                return null
+                            }
 
                             return {
                                 ...chat,
@@ -62,7 +68,7 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
 
 
 
-    // For the messages
+    // Load messages for a chat
     const fetchMessages = async (chatId) => {
         try {
             const rawDatabaseMessages = await messageService.getMessages(chatId)
