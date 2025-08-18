@@ -38,7 +38,7 @@ function ThemeToggleButton() {
 
 function App() {
 
-  const [messages, setMessages] = useState(null)
+  const [messages, setMessages] = useState([])
   const [socket, setSocket] = useState(null)
 
   const [step, setStep] = useState(1)
@@ -52,37 +52,9 @@ function App() {
 
   const [newUser, setNewUser] = useState('') // For SignUp form to save new user details
   const [newName, setNewName] = useState('') //
-  const [newUserPassword, setNewUserPassword] = useState('') //
+  const [newUserPassword, setNewUserPassword] = useState('')
 
-useEffect(() => {
-    const realChatIdFromMongo = '689b3cb7db9872638c68768b'
-
-    messageService.getMessages(realChatIdFromMongo)
-        .then(async rawDatabaseMessages => {
-            const parsedMessages = await Promise.all(
-                rawDatabaseMessages.map(async message => {
-                    try {
-                        const userId = message.senderId.id
-                        const userInfo = await userService.searchByUserId(userId)
-                        return {
-                            username: userInfo.username,
-                            messageContent: message.text
-                        }
-                    } catch (error) {
-                        console.log('Error fetching user:', error)
-                        return {
-                            username: 'Unknown User',
-                            messageContent: message.text
-                        }
-                    }
-                })
-            )
-            setMessages(parsedMessages)
-        })
-        .catch(error => {
-            console.log('Error when fetching messages', error)
-        })
-}, [])
+  const [id, setId] = useState('') // For the chatlist component
 
 
     //TODO: Contain the websocket handling to /services/chatSocketService.js
@@ -103,11 +75,6 @@ useEffect(() => {
         newSocket.on('connect_error', (error) => {
             console.error('Connection error:', error)
         })
-        // Might need a modification!!!!!!!
-        newSocket.on('chat message', newMessage => {
-            console.log('Received message:', newMessage)
-            setMessages(prevMessages => [...prevMessages, newMessage])
-        })
 
         return () => {
             newSocket.close()
@@ -118,24 +85,32 @@ useEffect(() => {
     // Searches for the possible token
     useEffect(() => {
         const loggedUserJSON = window.localStorage.getItem('loggedUser')
-        const loggedUsernameJson = window.localStorage.getItem('loggedUsername')
+        const loggedUsernameJSON = window.localStorage.getItem('loggedUsername')
+        const loggedUserIdJSON = window.localStorage.getItem('loggedUserId')
         if (loggedUserJSON) {
             const user = JSON.parse(loggedUserJSON)
-            const username = JSON.parse(loggedUsernameJson)
+            const username = JSON.parse(loggedUsernameJSON)
+            const id = JSON.parse(loggedUserIdJSON)
             setUser(user)
             setUsername(username)
+            setId(id)
         }
     }, [])
 
 
 
     // Sends a message
-    const addMessage = (newMessage) => {
-        if (socket && socket.connected) {
-            console.log('Sending Message:', newMessage)
-            socket.emit('chat message', newMessage)
+    const addMessage = (newMessage, chatId) => {
+        if (socket && socket.connected && chatId) {
+            const messageData = {
+                text: newMessage.messageContent,
+                sender: id,
+                chatId: chatId
+            }
+            console.log('Sending Message:', messageData)
+            socket.emit('chat message', messageData)
         } else {
-            console.error('Socket not connected')
+            console.error('Socket not connected or missing chatId')
         }
     }
 
@@ -145,6 +120,7 @@ useEffect(() => {
         console.log('logging out', user)
         window.localStorage.removeItem('loggedUser')
         window.localStorage.removeItem('loggedUsername')
+        window.localStorage.removeItem('loggedUserId')
         location.reload()
     }
 
@@ -161,10 +137,12 @@ useEffect(() => {
         event.preventDefault()
         console.log('loggin in with', username, password)
         try {
-            const userData = await loginService.login({ username, password })
+            const userData = await loginService.login({ username, password, id })
             setUser(userData)
+            setId(userData.id)
             window.localStorage.setItem('loggedUser', JSON.stringify(userData))
             window.localStorage.setItem('loggedUsername', JSON.stringify(username))
+            window.localStorage.setItem('loggedUserId', JSON.stringify(userData.id))
             setPassword('')
         } catch (error) {
             console.log('Error when logging in', error)
@@ -290,9 +268,8 @@ useEffect(() => {
             foundUser={foundUser}
             setFoundUser={setFoundUser}
           />
-         <ChatList></ChatList>
-         <ChatDisplay messages={messages} addMessage={addMessage}  username={username} />
-         <button onClick={handleLogout}>log out</button>
+         <ChatList userId={id} addMessage={addMessage} username={username} socket={socket}></ChatList>
+         <Button variant="outlined" onClick={handleLogout}>log out</Button>
      </div>
     )
 

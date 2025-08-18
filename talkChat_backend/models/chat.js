@@ -8,7 +8,8 @@ const chatSchema = new mongoose.Schema(
         ref: 'User', // reference to User model
         required: true
       }
-    ]
+    ],
+      minlenght: 2
   },
   { timestamps: true }
 )
