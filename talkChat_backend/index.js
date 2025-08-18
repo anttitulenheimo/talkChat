@@ -2,6 +2,7 @@ const express = require('express')
 const http = require('http')
 const { Server } = require('socket.io')
 const cors = require('cors')
+const rateLimit = require('express-rate-limit')
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
 const mongoose  = require('mongoose')
@@ -14,9 +15,16 @@ const Chat = require('./models/chat')
 const app = express()
 app.use(express.json())
 app.use(cors())
+
+// Rate limiter for getAllChats endpoint
+const getAllChatsLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests, please try again later.' }
+})
+
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
-
 
 mongoose
     .connect(config.MONGODB_URI)
@@ -87,7 +95,7 @@ app.get('/api/messages/:chatId', async (request, response) => {
     }
 })
 
-app.get('/api/getAllChats/:userId', async (request, response) => {
+app.get('/api/getAllChats/:userId', getAllChatsLimiter, async (request, response) => {
     try {
         if (!mongoose.Types.ObjectId.isValid(request.params.userId)) {
             return response.status(400).json({ error: 'Invalid userId format' })
