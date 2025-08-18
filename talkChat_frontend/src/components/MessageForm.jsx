@@ -2,14 +2,14 @@ import { useState } from 'react'
 
 import {Box, Button, TextField } from "@mui/material"
 
-const MessageForm = ({ addMessage, username }) => {
+const MessageForm = ({ addMessage, username, currentChatId }) => {
 
     const [messageContent, setMessageContent] = useState('')
 
     const handleSubmit = (event) => {
         event.preventDefault()
         if (messageContent) {
-            addMessage({ username, messageContent })
+            addMessage({ username, messageContent }, currentChatId)
             setMessageContent('')
         }
     }

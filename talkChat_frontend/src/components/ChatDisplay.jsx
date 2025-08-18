@@ -1,8 +1,8 @@
 import MessageDisplay from "./MessageDisplay.jsx"
-import {Box} from "@mui/material";
+import {Box, Button} from "@mui/material";
 import MessageForm from "./MessageForm.jsx"
 
-const ChatDisplay = ({ messages, addMessage, username }) => {
+const ChatDisplay = ({ messages, addMessage, username, onBack, currentChatId }) => {
     return (
         <Box
             border={1}
@@ -13,7 +13,8 @@ const ChatDisplay = ({ messages, addMessage, username }) => {
             overflow="auto"
         >
             <MessageDisplay messages={messages}/>
-            <MessageForm addMessage={addMessage} username={username} />
+            <MessageForm addMessage={addMessage} username={username} currentChatId={currentChatId} />
+            <Button variant="outlined" onClick={onBack}>Back</Button>
 
         </Box>
     )
