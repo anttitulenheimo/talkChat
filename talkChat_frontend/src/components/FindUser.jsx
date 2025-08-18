@@ -5,11 +5,12 @@ const FindUser = ({
         setFindUsername,
         handleFindUser,
         foundUser,
-        setFoundUser }) => {
+        setFoundUser,
+        handleNewChat }) => {
 
     const userExistsRender = ( // When user exist, render this
         <div>
-            <h3>Username <em>{findUsername}</em> found <button>Message</button></h3>
+            <h3>Username <em>{findUsername}</em> found <button onClick={handleNewChat}>Message</button></h3>
         </div>
     )
     return (

@@ -7,7 +7,7 @@ export default [
   {
     files: ['**/*.js'],
     languageOptions: {
-      sourceType: 'module',
+      sourceType: 'commonjs',
       globals: { ...globals.node },
       ecmaVersion: 'latest',
     },
