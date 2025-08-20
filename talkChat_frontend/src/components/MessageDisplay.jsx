@@ -11,9 +11,6 @@ const MessageDisplay = ({ messages }) => {
     return(
 
             <List>
-                <Typography variant="h5" gutterBottom>
-                Current chat
-                </Typography>
                 {messages.map( (message, index) =>
                     <ListItem key={`${message.username}-${index}`} alignItems="flex-start">
 

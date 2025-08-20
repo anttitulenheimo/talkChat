@@ -146,7 +146,6 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
 
     const chatDisplayComponent = () => (
         <Box>
-            <Button variant="outlined" onClick={handleBackToChats} sx={{ mb: 2 }}>Back to chats</Button>
             <ChatDisplay
                 messages={currentMessages}
                 addMessage={addMessage}

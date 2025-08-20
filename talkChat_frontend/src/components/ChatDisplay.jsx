@@ -1,21 +1,30 @@
 import MessageDisplay from "./MessageDisplay.jsx"
-import {Box, Button} from "@mui/material";
+import {Box, AppBar, Toolbar, IconButton, Typography, Button} from "@mui/material"
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import MessageForm from "./MessageForm.jsx"
 
 const ChatDisplay = ({ messages, addMessage, username, onBack, currentChatId }) => {
     return (
-        <Box
-            border={1}
-            borderColor="grey.400"
-            borderRadius={2}
-            p={2}
-            maxHeight="400px"
-            overflow="auto"
-        >
-            <MessageDisplay messages={messages}/>
-            <MessageForm addMessage={addMessage} username={username} currentChatId={currentChatId} />
-            <Button variant="outlined" onClick={onBack}>Back</Button>
+            <Box>
+                <AppBar position="static">
+                    <Toolbar>
+                        <IconButton edge="start" color="inherit" onClick={onBack}>
+                            <ArrowBackIcon />
+                        </IconButton>
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                            Back
+                        </Typography>
+                    </Toolbar>
+                </AppBar>
 
+                <Box
+                p={2}
+                maxHeight="auto"
+                overflow="auto"
+                >
+                    <MessageDisplay messages={messages}/>
+                    <MessageForm addMessage={addMessage} username={username} currentChatId={currentChatId} />
+                </Box>
         </Box>
     )
 }
