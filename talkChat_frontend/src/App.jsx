@@ -41,7 +41,7 @@ function App() {
 
 
 
- const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [socket, setSocket] = useState(null)
 
   const [step, setStep] = useState(1)
@@ -151,6 +151,8 @@ function App() {
             window.localStorage.setItem('loggedUser', JSON.stringify(userData))
             window.localStorage.setItem('loggedUsername', JSON.stringify(username))
             window.localStorage.setItem('loggedUserId', JSON.stringify(userData.id))
+            setNavValue(0)
+            window.localStorage.setItem('navValue', '0')
             setPassword('')
         } catch (error) {
             console.log('Error when logging in', error)
