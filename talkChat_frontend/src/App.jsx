@@ -25,6 +25,7 @@ import { lightTheme, darkTheme } from "./theme.jsx"
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined'
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined'
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 
 import chatService from './services/chatService.js'
 
@@ -278,11 +279,7 @@ function App() {
   // Shows the chat part of the app
   const chatForm = () => (
       <div>
-         <Typography variant="h4" gutterBottom>
-                  Conversations
-         </Typography>
          <ChatList userId={id} addMessage={addMessage} username={username} socket={socket}></ChatList>
-         <Button variant="outlined" onClick={handleLogout}>log out</Button>
      </div>
     )
 
@@ -317,6 +314,11 @@ function App() {
         icon={<ThemeToggleIcon mode={mode} />}
         onClick={() => setMode(mode === "dark" ? "light" : "dark")}
       />
+      <BottomNavigationAction
+          label="Log out"
+          icon={<LogoutOutlinedIcon />}
+          onClick={handleLogout}
+      />
       </BottomNavigation>
     )
 
@@ -332,7 +334,7 @@ function App() {
             </>)}
 
           {user && (
-              <>
+              <Box sx={{ paddingBottom: '70px' }}>
                 {navValue === 0 && chatForm()}
                 {navValue === 1 && (
                     <FindUser
@@ -349,7 +351,7 @@ function App() {
                       </div>
                   )}
                 {navigationForm()}
-              </>
+              </Box>
             )}
 
       </ThemeProvider>

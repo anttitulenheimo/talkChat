@@ -3,7 +3,8 @@ import messageService from "../services/messageService.js"
 import userService from "../services/userService.js"
 import chatService from "../services/chatService.js"
 import ChatDisplay from "./ChatDisplay.jsx";
-import {Button} from "@mui/material";
+import { Card, CardContent, List, ListItemButton, ListItemAvatar, Avatar, Typography, Divider, Box, Button } from "@mui/material";
+
 
 const ChatList = ({ userId, addMessage, username, socket }) => {
     const [chats, setChats] = useState([])
@@ -113,36 +114,48 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
         setCurrentMessages(null)
     }
 
-    const chatListComponent = () => {
-        return (
-        <div>
-            {chats.map(chat => (
-              <div key={chat.id}>
-                  <Button variant="contained" onClick={(event) => handleUsernameClick(event, chat.id)}>{chat.anotherUserName}</Button>
-              </div>
-            ))}
-        </div>
+    const chatListComponent = () => (
+        <Card>
+            <CardContent>
+                <Typography variant="h6" gutterBottom>Chats</Typography>
+                <List>
+                    {chats.map(chat => (
+                        <div key={chat.id}>
+                            <ListItemButton onClick={(event) => handleUsernameClick(event, chat.id)}>
+                                <ListItemAvatar>
+                                    <Avatar>{chat.anotherUserName[0].toUpperCase()}</Avatar>
+                                </ListItemAvatar>
+                                <Typography>{chat.anotherUserName}</Typography>
+                            </ListItemButton>
+                            <Divider />
+                        </div>
+                    ))}
+                    {chats.length === 0 && (
+                        <Typography variant="body2" color="text.secondary">No chats available</Typography>
+                    )}
+                </List>
+            </CardContent>
+        </Card>
     )
-    }
 
-    const chatDisplayComponent = () => {
-        return (
-            <div>
-                <ChatDisplay messages={currentMessages}
-                             addMessage={addMessage}
-                             username={username}
-                             onBack={handleBackToChats}
-                             currentChatId={chatId}
-                ></ChatDisplay>
-            </div>
-        )
-    }
+    const chatDisplayComponent = () => (
+        <Box>
+            <Button variant="outlined" onClick={handleBackToChats} sx={{ mb: 2 }}>Back to chats</Button>
+            <ChatDisplay
+                messages={currentMessages}
+                addMessage={addMessage}
+                username={username}
+                onBack={handleBackToChats}
+                currentChatId={chatId}
+            />
+        </Box>
+    )
 
     return (
-        <div>
+        <Box sx={{ maxWidth: "auto", margin: "auto", mt: 4 }}>
             {!currentMessages && chatListComponent()}
             {currentMessages && chatDisplayComponent()}
-        </div>
+        </Box>
     )
 }
 
