@@ -1,5 +1,4 @@
 
-
 const FindUser = ({ 
         findUsername,
         setFindUsername,
@@ -31,10 +30,5 @@ const FindUser = ({
     )
 
 }
-
-
-
-
-
 
 export default FindUser
