@@ -29,6 +29,7 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 
 import chatService from './services/chatService.js'
 
+//TODO: Chat bubbles needs to be styled
 
 function App() {
   // Sets the default theme when opening the app

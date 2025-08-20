@@ -1,5 +1,5 @@
 import MessageDisplay from "./MessageDisplay.jsx"
-import {Box, AppBar, Toolbar, IconButton, Typography, Button} from "@mui/material"
+import {Box, AppBar, Toolbar, IconButton, Typography} from "@mui/material"
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import MessageForm from "./MessageForm.jsx"
 
@@ -22,7 +22,7 @@ const ChatDisplay = ({ messages, addMessage, username, onBack, currentChatId }) 
                 maxHeight="auto"
                 overflow="auto"
                 >
-                    <MessageDisplay messages={messages}/>
+                    <MessageDisplay messages={messages} signedUser={username}/>
                     <MessageForm addMessage={addMessage} username={username} currentChatId={currentChatId} />
                 </Box>
         </Box>
