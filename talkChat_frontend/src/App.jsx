@@ -1,44 +1,32 @@
 import {useEffect, useState} from 'react'
 import { io } from 'socket.io-client'
 // Components
-import ChatDisplay from "./components/ChatDisplay.jsx"
 import ChatList from "./components/ChatList.jsx"
 import FindUser from './components/FindUser.jsx'
 // Services
 import loginService from "./services/loginService.js"
 import userService from './services/userService.js'
-import messageService from "./services/messageService.js"
 
 // Styling
-import {Typography, Box, Collapse, Button, TextField, ThemeProvider, createTheme} from '@mui/material'
+import {Typography, Box, Collapse, Button, TextField, ThemeProvider} from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
-import { useColorScheme } from '@mui/material/styles'
 import chatService from './services/chatService.js'
 
-const darkTheme = createTheme({
-  colorSchemes: {
-    light: 'true',
-    dark: 'true',
-  },
-})
+import { lightTheme, darkTheme } from "./theme.jsx";
 
 
 // Changes the themes between dark and light
-function ThemeToggleButton() {
-  const { mode, setMode } = useColorScheme()
-
-  const handleToggle = () => {
-    setMode(mode === 'dark' ? 'light' : 'dark')
-  }
-
+function ThemeToggleButton({ mode, setMode }) {
   return (
-    <Button variant="outlined" onClick={handleToggle}>
+    <Button variant="outlined" onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}>
       {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
     </Button>
   )
 }
 
 function App() {
+    const [mode, setMode] = useState('dark')
+
 
   const [messages, setMessages] = useState([])
   const [socket, setSocket] = useState(null)
@@ -241,7 +229,10 @@ function App() {
                                 onChange={(e) => setUsername(e.target.value)}
                             />
 
-                            <Button variant="contained" type="submit" fullWidth sx={{ mt: 2 }}>
+                            <Button variant="contained"
+                                    type="submit"
+                                    fullWidth
+                                    sx={{ mt: 2 }}>
                                 Continue
                             </Button>
                             <Button variant="outlined" fullWidth onClick={() => setRegister(true)}>
@@ -297,7 +288,7 @@ function App() {
 
 
   return (
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={mode === 'dark' ? darkTheme : lightTheme}>
           <CssBaseline />
           {!user && (
             <>
@@ -306,7 +297,7 @@ function App() {
             </>)}
           {user && chatForm()}
           
-          <ThemeToggleButton />
+          <ThemeToggleButton mode={mode} setMode={setMode}/>
       </ThemeProvider>
   )
 }
