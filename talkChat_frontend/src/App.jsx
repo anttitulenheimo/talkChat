@@ -3,32 +3,24 @@ import { io } from 'socket.io-client'
 // Components
 import ChatList from "./components/ChatList.jsx"
 import FindUser from './components/FindUser.jsx'
+import ThemeToggleButton from "./components/ThemeToggleButton.jsx"
 // Services
 import loginService from "./services/loginService.js"
-import userService from './services/userService.js'
 
+import userService from './services/userService.js'
 // Styling
 import {Typography, Box, Collapse, Button, TextField, ThemeProvider} from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
+import { lightTheme, darkTheme } from "./theme.jsx"
+
 import chatService from './services/chatService.js'
 
-import { lightTheme, darkTheme } from "./theme.jsx";
-
-
-// Changes the themes between dark and light
-function ThemeToggleButton({ mode, setMode }) {
-  return (
-    <Button variant="outlined" onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}>
-      {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
-    </Button>
-  )
-}
 
 function App() {
-    const [mode, setMode] = useState('dark')
+  // Sets the default theme when opening the app
+  const [mode, setMode] = useState('dark')
 
 
-  const [messages, setMessages] = useState([])
   const [socket, setSocket] = useState(null)
 
   const [step, setStep] = useState(1)
