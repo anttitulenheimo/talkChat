@@ -10,6 +10,7 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
     const [chats, setChats] = useState([])
     const [currentMessages, setCurrentMessages] = useState(null)
     const [chatId, setCurrentChatId] = useState(null)
+    const [loadingChats, setLoadingChats] = useState(true)
 
     // Handle chat messages
     useEffect(() => {
@@ -33,6 +34,7 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
     // Load chats
     useEffect(() => {
         if (!userId) return
+        setLoadingChats(true)
         chatService.getChats(userId)
             .then(async rawDatabaseChats => {
                 const parsedChats = await Promise.all(
@@ -61,9 +63,11 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
                     })
                 )
                 setChats(parsedChats.filter(chat => chat !== null))
+                setLoadingChats(false)
             })
             .catch(error => {
                 console.error('Error fetching chats:', error)
+                setLoadingChats(false)
             })
     }, [])
 
@@ -130,9 +134,11 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
                             <Divider />
                         </div>
                     ))}
-                    {chats.length === 0 && (
-                        <Typography variant="body2" color="text.secondary">No chats available</Typography>
-                    )}
+
+                        {!loadingChats && chats.length === 0 && (
+                            <Typography variant="body2" color="text.secondary">No chats available</Typography>
+                        )}
+
                 </List>
             </CardContent>
         </Card>

@@ -8,8 +8,6 @@ const MessageDisplay = ({ messages }) => {
         )
     }
 
-
-
     return(
 
             <List>

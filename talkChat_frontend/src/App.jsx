@@ -34,7 +34,12 @@ function App() {
   // Sets the default theme when opening the app
   const [mode, setMode] = useState('dark')
 
-  const [navValue, setNavValue] = useState(0) // 0 == chats, 1 == Search user, 2 == Settings
+  const [navValue, setNavValue] = useState(() => {
+      const savedNavValue = window.localStorage.getItem('navValue')
+      return savedNavValue ? parseInt(savedNavValue) : 0
+  }) // 0 == chats, 1 == Search user, 2 == Settings
+
+
 
  const [loading, setLoading] = useState(true)
   const [socket, setSocket] = useState(null)
@@ -287,11 +292,16 @@ function App() {
      </div>
     )
 
-    const navigationForm = () => (
+  const handleNavChange = (event, newValue) => {
+      setNavValue(newValue)
+      window.localStorage.setItem('navValue', newValue)
+  }
+
+  const navigationForm = () => (
       <BottomNavigation
         showLabels
         value={navValue}
-        onChange={ (event, newValue) => setNavValue(newValue)}
+        onChange={handleNavChange}
         sx={{
           position: 'fixed',
           bottom: 0,
@@ -350,7 +360,7 @@ function App() {
                         handleNewChat={handleNewChat}
                     />
                 )}
-                  {navValue === 3 && (
+                  {navValue === 2 && (
                       <div>
                       </div>
                   )}
