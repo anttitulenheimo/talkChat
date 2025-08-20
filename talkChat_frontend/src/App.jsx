@@ -36,7 +36,7 @@ function App() {
 
   const [navValue, setNavValue] = useState(0) // 0 == chats, 1 == Search user, 2 == Settings
 
-
+ const [loading, setLoading] = useState(true)
   const [socket, setSocket] = useState(null)
 
   const [step, setStep] = useState(1)
@@ -94,9 +94,13 @@ function App() {
             setUsername(username)
             setId(id)
         }
+        setLoading(false)
     }, [])
 
 
+    if (loading) { // Fixes the log in rendering issue
+      return null
+    }
 
     // Sends a message
     const addMessage = (newMessage, chatId) => {
