@@ -33,9 +33,9 @@ chatRouter.post('/', async (request, response) => {   // Creating a chat with an
   const { senderId, receiverId } = request.body
 
   try {
-    const chatExists = await Chat.findOne({ senderId, receiverId })
+    const chatExists = await Chat.findOne({participants: { $all: [senderId, receiverId] }})
     if (chatExists) {
-        return response.status(400).json({ error: "Chat already exists" });
+        return response.status(400).json({ error: "Chat already exists" })
     }
     const chat = new Chat({
       participants: [receiverId, senderId]
