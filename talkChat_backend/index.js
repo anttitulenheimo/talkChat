@@ -2,29 +2,29 @@ const express = require('express')
 const http = require('http')
 const { Server } = require('socket.io')
 const cors = require('cors')
-const rateLimit = require('express-rate-limit')
+
+// ROUTERS
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
+const messageRouter = require('./controllers/messages')
+const chatRouter = require('./controllers/chats')
+
 const mongoose  = require('mongoose')
 const config = require('./utils/config')
 
 const Message = require('./models/message')
-const Chat = require('./models/chat')
+
 
 
 const app = express()
 app.use(express.json())
 app.use(cors())
 
-// Rate limiter for getAllChats endpoint
-const getAllChatsLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: { error: 'Too many requests, please try again later.' }
-})
 
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
+app.use('/api/messages', messageRouter)
+app.use('/api/chats', chatRouter)
 
 mongoose
   .connect(config.MONGODB_URI)
@@ -75,57 +75,6 @@ ioServer.on('connection', (socket) => {
   })
 })
 
-// Works. Get needs chatId not messageId as a param...
-app.get('/api/messages/:chatId', async (request, response) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(request.params.chatId)) {
-      return response.status(400).json({ error: 'Invalid chatId format' })
-    }
-
-    const chatId = new mongoose.Types.ObjectId(request.params.chatId)
-
-    const messages = await Message
-      .find({ chatId })
-      .populate('senderId', 'username')
-
-    response.json(messages)
-  } catch (error) {
-    console.error(error)
-    response.status(500).json({ error: 'Server error' })
-  }
-})
-
-app.get('/api/getAllChats/:userId', getAllChatsLimiter, async (request, response) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(request.params.userId)) {
-      return response.status(400).json({ error: 'Invalid userId format' })
-    }
-
-    const userId = new mongoose.Types.ObjectId(request.params.userId)
-
-    const chats = await Chat
-      .find({ participants: userId })
-      .populate('participants', 'username')
-    response.json(chats)
-  } catch (error) {
-    console.error(error)
-    response.status(500).json({ error: 'Server error' })
-  }
-})
-
-app.post('/api/chats', async (request, response) => {   // Creating a chat with another user
-  const { senderId, receiverId } = request.body
-
-  try {
-    const chat = new Chat({
-      participants: [receiverId, senderId]
-    })
-    const savedChat = await chat.save()
-    response.status(201).json(savedChat)
-  } catch (error) {
-    response.status(400).json({ error: error.message })
-  }
-})
 
 
 
