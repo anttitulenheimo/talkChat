@@ -110,14 +110,15 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
         setCurrentChatId(chatId)
 
         if (socket) {
-        socket.emit('join chat', chatId)
-    }
+            socket.emit('join chat', chatId)
+        }
     }
 
     const handleBackToChats = () => {
         setCurrentMessages(null)
     }
 
+    //TODO: Implement a way to show the latest message under the username
     const chatListComponent = () => (
         <Card>
             <CardContent>
