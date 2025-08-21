@@ -1,46 +1,49 @@
 import {useEffect, useState} from 'react'
 import { io } from 'socket.io-client'
 // Components
-import ChatDisplay from "./components/ChatDisplay.jsx"
 import ChatList from "./components/ChatList.jsx"
 import FindUser from './components/FindUser.jsx'
+import ThemeToggleIcon from "./components/ThemeToggleIcon.jsx"
+import PrimarySearchAppBar from "./components/PrimarySearchAppBar.jsx";
+
 // Services
 import loginService from "./services/loginService.js"
-import userService from './services/userService.js'
-import messageService from "./services/messageService.js"
 
+import userService from './services/userService.js'
 // Styling
-import {Typography, Box, Collapse, Button, TextField, ThemeProvider, createTheme} from '@mui/material'
+import {
+    Typography,
+    Box,
+    Collapse,
+    Button,
+    TextField,
+    ThemeProvider,
+    BottomNavigationAction,
+    BottomNavigation
+} from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
-import { useColorScheme } from '@mui/material/styles'
+import { lightTheme, darkTheme } from "./theme.jsx"
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
+import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined'
+import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined'
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
+
 import chatService from './services/chatService.js'
 
-const darkTheme = createTheme({
-  colorSchemes: {
-    light: 'true',
-    dark: 'true',
-  },
-})
-
-
-// Changes the themes between dark and light
-function ThemeToggleButton() {
-  const { mode, setMode } = useColorScheme()
-
-  const handleToggle = () => {
-    setMode(mode === 'dark' ? 'light' : 'dark')
-  }
-
-  return (
-    <Button variant="outlined" onClick={handleToggle}>
-      {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
-    </Button>
-  )
-}
+//TODO: Chat bubbles needs to be styled
 
 function App() {
+  // Sets the default theme when opening the app
+  const [mode, setMode] = useState('dark')
 
-  const [messages, setMessages] = useState([])
+  const [navValue, setNavValue] = useState(() => {
+      const savedNavValue = window.localStorage.getItem('navValue')
+      return savedNavValue ? parseInt(savedNavValue) : 0
+  }) // 0 == chats, 1 == Search user, 2 == Settings
+
+
+
+  const [loading, setLoading] = useState(true)
   const [socket, setSocket] = useState(null)
 
   const [step, setStep] = useState(1)
@@ -98,9 +101,13 @@ function App() {
             setUsername(username)
             setId(id)
         }
+        setLoading(false)
     }, [])
 
 
+    if (loading) { // Fixes the log in rendering issue
+      return null
+    }
 
     // Sends a message
     const addMessage = (newMessage, chatId) => {
@@ -146,6 +153,8 @@ function App() {
             window.localStorage.setItem('loggedUser', JSON.stringify(userData))
             window.localStorage.setItem('loggedUsername', JSON.stringify(username))
             window.localStorage.setItem('loggedUserId', JSON.stringify(userData.id))
+            setNavValue(0)
+            window.localStorage.setItem('navValue', '0')
             setPassword('')
         } catch (error) {
             console.log('Error when logging in', error)
@@ -206,7 +215,7 @@ function App() {
         return (
             <Box sx={{ width: 300, margin: 'auto', mt: 5 }}>
                 <Box component='form' onSubmit={handleRegister}>
-                        <Typography variant="h3" component="h3" color='primary' align='center'>
+                        <Typography variant="h3" component="h4" color='primary' align='center'>
                             Sign up
                         </Typography>
                     <Box>
@@ -218,12 +227,13 @@ function App() {
                     <Box>
                         <TextField sx={{ width: '100%' }} type='password' placeholder='Enter your password' value={newUserPassword} onChange={({ target }) => setNewUserPassword(target.value)} />
                     </Box>
-                    <Button sx={{ width: '50%' }} variant="outlined" onClick={() => setRegister(false)}>Back</Button>
-                    <Button sx={{ width: '50%' }} variant="outlined"  type='submit'>Register</Button>
+                    <Button sx={{ width: '50%', borderRadius: 2 }} variant="outlined" onClick={() => setRegister(false)}>Back</Button>
+                    <Button sx={{ width: '50%', borderRadius: 2 }} variant="contained"  type='submit'>Register</Button>
                 </Box>
             </Box>
         )
     }
+
     // Shows the login part of the app
     const loginForm = () => (
             <Box
@@ -241,7 +251,10 @@ function App() {
                                 onChange={(e) => setUsername(e.target.value)}
                             />
 
-                            <Button variant="contained" type="submit" fullWidth sx={{ mt: 2 }}>
+                            <Button variant="contained"
+                                    type="submit"
+                                    fullWidth
+                                    sx={{ mt: 2 }}>
                                 Continue
                             </Button>
                             <Button variant="outlined" fullWidth onClick={() => setRegister(true)}>
@@ -279,34 +292,91 @@ function App() {
   // Shows the chat part of the app
   const chatForm = () => (
       <div>
-         <Typography variant="h4" gutterBottom>
-                  Conversations
-         </Typography>
-         <FindUser 
-            findUsername={findUsername}
-            setFindUsername={setFindUsername}
-            handleFindUser={handleFindUser}
-            foundUser={foundUser}
-            setFoundUser={setFoundUser}
-            handleNewChat={handleNewChat}
-          />
          <ChatList userId={id} addMessage={addMessage} username={username} socket={socket}></ChatList>
-         <Button variant="outlined" onClick={handleLogout}>log out</Button>
      </div>
+    )
+
+  const handleNavChange = (event, newValue) => {
+      setNavValue(newValue)
+      window.localStorage.setItem('navValue', newValue)
+  }
+
+  const navigationForm = () => (
+      <BottomNavigation
+        showLabels
+        value={navValue}
+        onChange={handleNavChange}
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 70,
+          zIndex: 1000,
+          bgcolor: 'background.paper',
+          borderTop: 1,
+          borderColor: 'divider'
+        }}
+      >
+      <BottomNavigationAction
+          label="Chats"
+          icon={<ChatBubbleOutlineOutlinedIcon />}
+      />
+      <BottomNavigationAction
+          label="Search user"
+          icon={<SearchOutlinedIcon />}
+      />
+      <BottomNavigationAction
+          label="Settings"
+          icon={<SettingsOutlinedIcon />}
+      />
+      <BottomNavigationAction
+        label="Theme"
+        icon={<ThemeToggleIcon mode={mode} />}
+        onClick={() => setMode(mode === "dark" ? "light" : "dark")}
+      />
+      <BottomNavigationAction
+          label="Log out"
+          icon={<LogoutOutlinedIcon />}
+          onClick={handleLogout}
+      />
+      </BottomNavigation>
     )
 
 
   return (
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={mode === 'dark' ? darkTheme : lightTheme}>
           <CssBaseline />
+
           {!user && (
             <>
             {loginForm()}
             {register ? (SignUpForm()) : (<Box></Box>)}
             </>)}
-          {user && chatForm()}
-          
-          <ThemeToggleButton />
+
+          {user && (
+
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <PrimarySearchAppBar />
+                {navValue === 0 && chatForm()}
+                {navValue === 1 && (
+                    <FindUser
+                        findUsername={findUsername}
+                        setFindUsername={setFindUsername}
+                        handleFindUser={handleFindUser}
+                        foundUser={foundUser}
+                        setFoundUser={setFoundUser}
+                        handleNewChat={handleNewChat}
+                    />
+                )}
+                  {navValue === 2 && (
+                      <div>
+                      </div>
+                  )}
+                {navigationForm()}
+              </Box>
+            )}
+
       </ThemeProvider>
   )
 }

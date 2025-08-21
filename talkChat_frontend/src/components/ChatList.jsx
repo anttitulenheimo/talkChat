@@ -3,12 +3,17 @@ import messageService from "../services/messageService.js"
 import userService from "../services/userService.js"
 import chatService from "../services/chatService.js"
 import ChatDisplay from "./ChatDisplay.jsx";
-import {Button} from "@mui/material";
+import { Card, CardContent, List, ListItemButton, ListItemAvatar, Avatar, Typography, Divider, Box, Button } from "@mui/material";
+
+import _ from "lodash";
+
 
 const ChatList = ({ userId, addMessage, username, socket }) => {
     const [chats, setChats] = useState([])
     const [currentMessages, setCurrentMessages] = useState(null)
     const [chatId, setCurrentChatId] = useState(null)
+    const [loadingChats, setLoadingChats] = useState(true)
+    const [latestMessages, setLatestMessages] = useState({})
 
     // Handle chat messages
     useEffect(() => {
@@ -27,11 +32,29 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
     }, [socket, chatId])
 
 
+    // Loads latest chat messages to display
+    useEffect(() => {
+        const loadLatestMessages = async () => {
+            const result = {}
+            for (const chat of chats) {
+                const messages = await fetchMessages(chat.id)
+                if (messages.length > 0) {
+                    result[chat.id] = _.last(messages).messageContent
+                }
+            }
+            setLatestMessages(result)
+        }
+        if (chats.length > 0) {
+            loadLatestMessages()
+        }
+    }, [chats]);
+
 
 
     // Load chats
     useEffect(() => {
         if (!userId) return
+        setLoadingChats(true)
         chatService.getChats(userId)
             .then(async rawDatabaseChats => {
                 const parsedChats = await Promise.all(
@@ -60,9 +83,11 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
                     })
                 )
                 setChats(parsedChats.filter(chat => chat !== null))
+                setLoadingChats(false)
             })
             .catch(error => {
                 console.error('Error fetching chats:', error)
+                setLoadingChats(false)
             })
     }, [])
 
@@ -105,44 +130,70 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
         setCurrentChatId(chatId)
 
         if (socket) {
-        socket.emit('join chat', chatId)
-    }
+            socket.emit('join chat', chatId)
+        }
     }
 
     const handleBackToChats = () => {
         setCurrentMessages(null)
     }
 
-    const chatListComponent = () => {
-        return (
-        <div>
-            {chats.map(chat => (
-              <div key={chat.id}>
-                  <Button variant="contained" onClick={(event) => handleUsernameClick(event, chat.id)}>{chat.anotherUserName}</Button>
-              </div>
-            ))}
-        </div>
-    )
+    const truncate = (text, maxLength = 30) => { //Makes sure that too long messages are not displayed
+      if (!text) return ""
+      return text.length > maxLength
+          ? text.substring(0, maxLength) + "…"
+          : text
     }
 
-    const chatDisplayComponent = () => {
-        return (
-            <div>
-                <ChatDisplay messages={currentMessages}
-                             addMessage={addMessage}
-                             username={username}
-                             onBack={handleBackToChats}
-                             currentChatId={chatId}
-                ></ChatDisplay>
-            </div>
-        )
-    }
+
+    const chatListComponent = () => (
+        <Card>
+            <CardContent>
+                <Typography variant="h6" gutterBottom>Chats</Typography>
+                <List>
+                    {chats.map(chat => (
+                        <div key={chat.id}>
+                            <ListItemButton onClick={(event) => handleUsernameClick(event, chat.id)}>
+                                <ListItemAvatar>
+                                    <Avatar>{chat.anotherUserName[0].toUpperCase()}</Avatar>
+                                </ListItemAvatar>
+                                <Box>
+                                    <Typography>{chat.anotherUserName}</Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {truncate(latestMessages[chat.id])|| "No messages yet"}
+                                    </Typography>
+                                </Box>
+                            </ListItemButton>
+                            <Divider />
+                        </div>
+                    ))}
+
+                        {!loadingChats && chats.length === 0 && (
+                            <Typography variant="body2" color="text.secondary">No chats available</Typography>
+                        )}
+
+                </List>
+            </CardContent>
+        </Card>
+    )
+
+    const chatDisplayComponent = () => (
+        <Box>
+            <ChatDisplay
+                messages={currentMessages}
+                addMessage={addMessage}
+                username={username}
+                onBack={handleBackToChats}
+                currentChatId={chatId}
+            />
+        </Box>
+    )
 
     return (
-        <div>
+        <Box sx={{ maxWidth: "auto", margin: "auto" }}>
             {!currentMessages && chatListComponent()}
             {currentMessages && chatDisplayComponent()}
-        </div>
+        </Box>
     )
 }
 
