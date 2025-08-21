@@ -5,12 +5,15 @@ import chatService from "../services/chatService.js"
 import ChatDisplay from "./ChatDisplay.jsx";
 import { Card, CardContent, List, ListItemButton, ListItemAvatar, Avatar, Typography, Divider, Box, Button } from "@mui/material";
 
+import _ from "lodash";
+
 
 const ChatList = ({ userId, addMessage, username, socket }) => {
     const [chats, setChats] = useState([])
     const [currentMessages, setCurrentMessages] = useState(null)
     const [chatId, setCurrentChatId] = useState(null)
     const [loadingChats, setLoadingChats] = useState(true)
+    const [latestMessages, setLatestMessages] = useState({})
 
     // Handle chat messages
     useEffect(() => {
@@ -28,6 +31,22 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
         }
     }, [socket, chatId])
 
+    // Loads latest chat messages
+    useEffect(() => {
+        const loadLatestMessages = async () => {
+            const result = {}
+            for (const chat of chats) {
+                const messages = await fetchMessages(chat.id)
+                if (messages.length > 0) {
+                    result[chat.id] = _.last(messages).messageContent
+                }
+            }
+            setLatestMessages(result)
+        }
+        if (chats.length > 0) {
+            loadLatestMessages()
+        }
+    }, [chats]);
 
 
 
@@ -118,6 +137,13 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
         setCurrentMessages(null)
     }
 
+    const truncate = (text, maxLength = 30) => { //Makes sure that too long messages are not displayed
+      if (!text) return ""
+      return text.length > maxLength
+          ? text.substring(0, maxLength) + "…"
+          : text
+    }
+
     //TODO: Implement a way to show the latest message under the username
     const chatListComponent = () => (
         <Card>
@@ -130,7 +156,12 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
                                 <ListItemAvatar>
                                     <Avatar>{chat.anotherUserName[0].toUpperCase()}</Avatar>
                                 </ListItemAvatar>
-                                <Typography>{chat.anotherUserName}</Typography>
+                                <Box>
+                                    <Typography>{chat.anotherUserName}</Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {truncate(latestMessages[chat.id])|| "No messages yet"}
+                                    </Typography>
+                                </Box>
                             </ListItemButton>
                             <Divider />
                         </div>
