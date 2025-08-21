@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled, alpha } from '@mui/material/styles';
+import { styled, alpha, useTheme } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,7 +13,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
-
 import MoreIcon from '@mui/icons-material/MoreVert';
 
 const Search = styled('div')(({ theme }) => ({
@@ -57,6 +56,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function PrimarySearchAppBar() {
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -145,7 +145,15 @@ export default function PrimarySearchAppBar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar
+        position="static"
+        sx={{
+          bgcolor: 'background.paper',
+          color: 'text.primary',
+          borderBottom: 1,
+          borderColor: 'divider'
+        }}
+      >
         <Toolbar>
           <IconButton
             size="large"

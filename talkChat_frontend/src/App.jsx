@@ -313,6 +313,9 @@ function App() {
           right: 0,
           height: 70,
           zIndex: 1000,
+          bgcolor: 'background.paper',
+          borderTop: 1,
+          borderColor: 'divider'
         }}
       >
       <BottomNavigationAction

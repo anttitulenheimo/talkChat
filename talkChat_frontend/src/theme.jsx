@@ -33,8 +33,8 @@ export const darkTheme = createTheme({
       main: blue[500],
     },
     background: {
-      default: "#121212",
-      paper: "#1e1e1e",
+      default: '#000000',
+      paper: "#000000",
     },
   },
   components: {
