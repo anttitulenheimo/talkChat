@@ -4,6 +4,7 @@ import { io } from 'socket.io-client'
 import ChatList from "./components/ChatList.jsx"
 import FindUser from './components/FindUser.jsx'
 import ThemeToggleIcon from "./components/ThemeToggleIcon.jsx"
+import PrimarySearchAppBar from "./components/PrimarySearchAppBar.jsx";
 
 // Services
 import loginService from "./services/loginService.js"
@@ -351,7 +352,9 @@ function App() {
             </>)}
 
           {user && (
-              <Box sx={{ paddingBottom: '70px' }}>
+
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <PrimarySearchAppBar />
                 {navValue === 0 && chatForm()}
                 {navValue === 1 && (
                     <FindUser

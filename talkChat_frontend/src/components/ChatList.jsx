@@ -31,7 +31,8 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
         }
     }, [socket, chatId])
 
-    // Loads latest chat messages
+
+    // Loads latest chat messages to display
     useEffect(() => {
         const loadLatestMessages = async () => {
             const result = {}
@@ -144,7 +145,7 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
           : text
     }
 
-    //TODO: Implement a way to show the latest message under the username
+
     const chatListComponent = () => (
         <Card>
             <CardContent>
@@ -189,7 +190,7 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
     )
 
     return (
-        <Box sx={{ maxWidth: "auto", margin: "auto", mt: 4 }}>
+        <Box sx={{ maxWidth: "auto", margin: "auto" }}>
             {!currentMessages && chatListComponent()}
             {currentMessages && chatDisplayComponent()}
         </Box>
