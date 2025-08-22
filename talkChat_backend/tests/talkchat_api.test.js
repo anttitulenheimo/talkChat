@@ -4,7 +4,8 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const User = require('../models/user')
-
+const Chat = require('../models/chat')
+const Message = require('../models/message')
 
 const api = supertest(app)
 
@@ -15,6 +16,7 @@ const constantTestUser = {
 }
 beforeEach(async () => {
     await User.deleteMany({})
+    await Chat.deleteMany({})
     
 })
 
@@ -76,10 +78,37 @@ describe('USERTEST3: User can create a new chat with another user', () => {
             .send({senderId: responseUserOne.body.id, receiverId: responseUserTwo.body.id})
             .expect(201)
     })
-  
 })
 
+describe('CHAT-TEST1: A new chat is not created if it already exists between two users', () => {
+    test('creating two chats', async () => {
+        
+        const userOne = await api //Creating two users
+            .post('/api/users/')
+            .send(constantTestUser)
+            .expect(201)
 
+        const userTwo = await api
+            .post('/api/users/')
+            .send({ username: 'AnotherUser', name: 'David', password: 'abc123' })
+            .expect(201)
+
+        const userOneId = userOne.body.id
+        const userTwoId = userTwo.body.id
+
+        
+        await api   // Create first chat
+            .post('/api/chats')
+            .send({ senderId: userOneId, receiverId: userTwoId })
+            .expect(201)
+
+        
+        await api   // This should return 400
+            .post('/api/chats')
+            .send({ senderId: userOneId, receiverId: userTwoId })
+            .expect(400)
+    })
+})
 
 after(async () => {
   await mongoose.connection.close()

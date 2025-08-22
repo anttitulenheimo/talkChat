@@ -22,7 +22,7 @@ chatRouter.get('/:userId', getAllChatsLimiter, async (request, response) => {
     const chats = await Chat
       .find({ participants: userId })
       .populate('participants', 'username')
-    response.json(chats)
+    response.status(201).json(chats)
   } catch (error) {
     console.error(error)
     response.status(500).json({ error: 'Server error' })
