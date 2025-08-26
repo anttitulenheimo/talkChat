@@ -3,7 +3,9 @@ import messageService from "../services/messageService.js"
 import userService from "../services/userService.js"
 import chatService from "../services/chatService.js"
 import ChatDisplay from "./ChatDisplay.jsx";
-import {Avatar, Box, Card, CardContent, Divider, List, ListItemAvatar, ListItemButton, Typography} from "@mui/material";
+import { Card, CardContent, List, ListItemButton, ListItemAvatar, ListItem, Avatar, Typography, Divider, Box, Button } from "@mui/material";
+import ThreeDotsMenu from './ThreeDotsMenu.jsx'
+
 import _ from "lodash";
 
 const ChatList = ({ userId, addMessage, username, socket }) => {
@@ -153,43 +155,55 @@ const ChatList = ({ userId, addMessage, username, socket }) => {
     setCurrentMessages(null)
   }
 
-  const truncate = (text, maxLength = 30) => {
-    if (!text) return ""
-    return text.length > maxLength ? text.substring(0, maxLength) + "…" : text
-  }
+    const truncate = (text, maxLength = 30) => { //Makes sure that too long messages are not displayed
+      if (!text) return ""
+      return text.length > maxLength
+          ? text.substring(0, maxLength) + "…"
+          : text
+    }
 
-  const chatListComponent = () => (
-    <Card>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Chats
-        </Typography>
-        <List>
-          {chats.map((chat) => (
-            <div key={chat.id}>
-              <ListItemButton onClick={(event) => handleUsernameClick(event, chat.id)}>
-                <ListItemAvatar>
-                  <Avatar>{chat.anotherUserName[0].toUpperCase()}</Avatar>
-                </ListItemAvatar>
-                <Box>
-                  <Typography>{chat.anotherUserName}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {truncate(latestMessages[chat.id]) || "No messages yet"}
-                  </Typography>
-                </Box>
-              </ListItemButton>
-              <Divider />
-            </div>
-          ))}
-          {!loadingChats && chats.length === 0 && (
-            <Typography variant="body2" color="text.secondary">
-              No chats available
-            </Typography>
-          )}
-        </List>
-      </CardContent>
-    </Card>
-  )
+    const chatListComponent = () => (
+        <Card>
+            <CardContent>
+            <Typography variant="h6" gutterBottom>Chats</Typography>
+            <List>
+                {chats.map(chat => (
+                <div key={chat.id}>
+                    <ListItem
+                    sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: 0 }}
+                    >
+                    {/* Left: clickable chat info */}
+                    <ListItemButton
+                        sx={{ flexGrow: 1, width: "100%"}}
+                        onClick={(event) => handleUsernameClick(event, chat.id)}
+                    >
+                        <ListItemAvatar>
+                        <Avatar>{chat.anotherUserName[0].toUpperCase()}</Avatar>
+                        </ListItemAvatar>
+                        <Box>
+                        <Typography>{chat.anotherUserName}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            {truncate(latestMessages[chat.id]) || "No messages yet"}
+                        </Typography>
+                        </Box>
+                    </ListItemButton>
+
+                    {/* Right: three dots */}
+                    <ThreeDotsMenu chatId={chat.id} chats={chats} setChats={setChats} />
+                    </ListItem>
+                    <Divider />
+                </div>
+                ))}
+
+                {chats.length === 0 && (
+                <Typography variant="body2" color="text.secondary">
+                    No chats available
+                </Typography>
+                )}
+            </List>
+            </CardContent>
+        </Card>
+);
 
   const chatDisplayComponent = () => (
     <Box>

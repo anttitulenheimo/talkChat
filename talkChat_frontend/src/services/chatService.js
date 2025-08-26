@@ -13,4 +13,10 @@ const newChat = async (chatObject) => {
   return response.data
 }
 
-export default { getChats, newChat }
+const remove = async (id) => {
+  const url = `${baseUrl}/${id}`
+  const response = await axios.delete(url)
+  return response.data
+}
+
+export default { getChats, newChat, remove }
