@@ -39,15 +39,11 @@ export default function ThreeDotsMenu({ chatId, chats, setChats }) {
 
   const handleChatDelete = (event) => {
     event.preventDefault()
-    
-    console.log('HEY! you are pressing the delete button!')
-    console.log(idForDeletion)
+
     
    if (window.confirm('Press OK to delete chat')) {
     try {
         chatService.remove(chatId)
-        console.log(chatId)
-        console.log('Chat deleted succesfully')
         setAnchorEl(null);
         handleMobileMenuClose()
         setChats(chats.filter(chat => chat.id !== idForDeletion))
