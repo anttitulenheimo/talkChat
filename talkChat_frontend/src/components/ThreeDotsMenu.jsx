@@ -5,7 +5,7 @@ import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import SettingsEthernetIcon from '@mui/icons-material/SettingsEthernet';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 // Service
 import chatService from '../services/chatService'
@@ -74,7 +74,7 @@ export default function ThreeDotsMenu({ chatId, chats, setChats }) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleChatDelete}>delete</MenuItem>
+      <MenuItem onClick={handleChatDelete}><DeleteIcon />Delete</MenuItem>
     </Menu>
   )
 
@@ -97,11 +97,12 @@ export default function ThreeDotsMenu({ chatId, chats, setChats }) {
   >
     <MenuItem onClick={(event) => { handleChatDelete(event); handleMobileMenuClose(); }}>
       <IconButton
-        size="large"
+        size="small"
         aria-label="delete chat"
         color="inherit"
+        variant="outlined" 
       >
-
+        <DeleteIcon />
       </IconButton>
       <p>Delete</p>
     </MenuItem>
