@@ -10,7 +10,7 @@ talkChat provides real-time messaging, simple room support, and a responsive UI 
 
 ![Chat room ligtmode](Demopics/messaging_users_lightmode.png)
 
-![Login screen](Demopics/login.png)
+![Login screen](Demopics/logIn.png)
 
 ![SingUp](Demopics/signUp.png)
 
