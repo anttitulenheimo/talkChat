@@ -47,5 +47,18 @@ chatRouter.post('/', async (request, response) => {   // Creating a chat with an
   }
 })
 
+chatRouter.delete('/:id', async (request, response)=>  {
+
+    try {
+
+      await Chat.findByIdAndDelete(request.params.id)
+      response.status(204).end()
+
+    } catch (error) {
+
+      response.status(400).json({ error: 'Malformed ID' })
+
+    }
+})
 
 module.exports = chatRouter
